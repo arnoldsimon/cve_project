@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVE List</title>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <style>
+        .container {
+            margin: 20px;
+        }
+        #resultsPerPage {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="text-align: center;">CVE List</h2>
+
+		<div id="totalRecords">
+            <span style="font-weight: bold;">Total Records: </span><span id="totalCount">0</span>
+        </div>
+        
+        <table id="cveTable" class="display">
+            <thead>
+                <tr>
+                    <th>CVE ID</th>
+                    <th>Identifier</th>
+                    <th>Published Date</th>
+                    <th>Last Modified Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+		<!--
+        <div id="resultsPerPage">
+            <label for="pageSize">Results Per Page:</label>
+            <select id="pageSize">
+                <option value="10" selected>10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+		-->
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var table = $('#cveTable').DataTable({
+                serverSide: true,
+                processing: true,
+                ajax: function(data, callback, settings) {
+                    var start = settings._iDisplayStart;
+                    var length = settings._iDisplayLength;
+                    
+                    $.get('http://127.0.0.1:8000/cves/list', {
+                        start_indx: start,
+                        length: length,
+                    }, function(response) {
+
+						$("#totalCount").text(response.recordsTotal);
+
+                        callback({
+                            draw: response.draw,
+                            recordsTotal: response.recordsTotal,
+                            recordsFiltered: response.recordsFiltered,
+                            data: response.data
+                        });
+                    });
+                },
+                columns: [
+                    { data: 'id' },  
+                    { data: 'sourceIdentifier' },  
+                    { data: 'published' },  
+                    { data: 'lastModified' },  
+                    { data: 'vulnStatus' }
+                ],
+                pageLength: 10,
+				searching: false,
+				ordering: false,
+				lengthChange: false,
+            });
+
+			/*
+            // Change the results per page and reload data
+            $('#pageSize').on('change', function() {
+                var pageSize = parseInt($(this).val(), 10);
+                table.page.len(pageSize).draw();
+            });
+			*/
+        });
+    </script>
+</body>
+</html>

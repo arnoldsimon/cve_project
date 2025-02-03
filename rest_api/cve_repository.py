@@ -11,6 +11,29 @@ collection = client[db_name][col_name]
 
 #TODO: log errors
 
+async def get_cve_list(start_indx: int, length: int, sort_column: str, sort_order: str):
+	try:
+		is_asc = 1 if sort_order == "asc" else -1
+
+		total_docs = await collection.count_documents({})
+		db_res = collection.find().skip(start_indx).limit(length).sort(sort_column, is_asc)
+		cve_list = await db_res.to_list()
+
+		for cve in cve_list:
+			cve["_id"] = str(cve["_id"])
+		
+		res = {
+			"draw" : 1 if start_indx == 0 else (start_indx / 10) + 1,
+			"recordsTotal" : total_docs,
+			"recordsFiltered" : total_docs,
+			"data" : cve_list
+		}
+
+		return res
+
+	except Exception as e:
+		raise e
+
 async def get_cve(cve_id: str):
 	try:
 		res = await collection.find_one({ 'id' : cve_id })
