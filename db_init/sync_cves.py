@@ -102,7 +102,7 @@ def fetch_new(pub_start: datetime, pub_end: datetime):
 
 if __name__ == '__main__':
 
-	change_start = datetime.now() - timedelta(SYNC_INTERVAL)
+	change_start = datetime.now() - timedelta(hours = SYNC_INTERVAL)
 	change_end = datetime.now()
 
 	fetch_changes(change_start, change_end)

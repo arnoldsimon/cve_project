@@ -13,12 +13,6 @@ def drop_db():
 	with MongoClient(client_url) as client:
 		client.drop_database(db_name)
 
-def read_cve(cve_id):
-	pass
-
-def delete_cve(cve_id):
-	pass
-
 def insert_cve(cve_data):
 
 	cve_data["created_on"] = datetime.now()
