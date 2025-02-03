@@ -1,7 +1,5 @@
 # cve_project
 
-This project is a CVE (Common Vulnerabilities and Exposures) management system that fetches, stores, and displays CVE records using a database, REST API, and a simple UI.
-
 ## Project Structure
 
 ```
@@ -70,6 +68,76 @@ uvicorn main:app --reload
 
 ### 7. View the UI
 - Open `ui/index.html` in a browser to see the list of CVEs.
+
+## REST API Documentation
+
+### **1. Get CVE List**
+**Endpoint:** `GET /cves/list`
+
+**Query Parameters:**
+- `start_indx` (int, default: 0) - Starting index (must be >= 0)
+- `length` (int, default: 10) - Number of results to return (1-100)
+- `sort_column` (string, default: `lastModified`) - Sort by `published` or `lastModified`
+- `sort_order` (string, default: `desc`) - Sort order `asc` or `desc`
+
+**Example Request:**
+```sh
+curl -X GET "http://localhost:8000/cves/list?start_indx=0&length=10&sort_column=lastModified&sort_order=desc"
+```
+
+![Get CVE List Output](images/cve_list_output.jpg)
+
+### **2. Get CVE by ID**
+**Endpoint:** `GET /cves/by_id`
+
+**Query Parameters:**
+- `cve_id` (string, required) - CVE ID to fetch
+
+**Example Request:**
+```sh
+curl -X GET "http://localhost:8000/cves/by_id?cve_id=CVE-2024-0001"
+```
+
+![Get CVE by ID Output](images/cve_id_output.jpg)
+
+### **3. Get CVE by Year**
+**Endpoint:** `GET /cves/by_year`
+
+**Query Parameters:**
+- `pub_year` (int, required) - Year of publication (1900-current year)
+
+**Example Request:**
+```sh
+curl -X GET "http://localhost:8000/cves/by_year?pub_year=2023"
+```
+
+![Get CVE by Year Output](images/cve_year_output.jpg)
+
+### **4. Get CVE by Score**
+**Endpoint:** `GET /cves/by_score`
+
+**Query Parameters:**
+- `score` (float, required) - CVE score (0.1 - 10.0)
+
+**Example Request:**
+```sh
+curl -X GET "http://localhost:8000/cves/by_score?score=7.5"
+```
+
+![Get CVE by Score Output](images/cve_score_output.jpg)
+
+### **5. Get CVE by Modification Duration**
+**Endpoint:** `GET /cves/by_mod_duration`
+
+**Query Parameters:**
+- `days` (int, required) - Number of days since last modification
+
+**Example Request:**
+```sh
+curl -X GET "http://localhost:8000/cves/by_mod_duration?days=30"
+```
+
+![Get CVE by Modification Duration Output](images/cve_mod_output.jpg)
 
 ## Screenshots
 ### Input (Fetching CVEs)
