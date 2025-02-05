@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVE Details</title>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <style>
+        .container {
+            margin: 20px;
+        }
+		table {
+			width: 60%;
+			border-collapse: collapse; 
+		}
+		th, td {
+			border: 1px solid black; 
+			padding: 8px; 
+			text-align: center;
+		}
+		th {
+			background-color: #f2f2f2; 
+		}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 id="heading">CVE Details</h2>
+
+        <div id="cveDetails">
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var cveId = urlParams.get('cve_id'); 
+
+            $.get('http://127.0.0.1:8000/cves/by_id', {
+                cve_id: cveId 
+            }, function(response) {
+				if (response)
+				{
+					document.title = response.id;
+					$('#heading').text(response.id);
+
+					response.descriptions.forEach(function(description) {
+						console.log("test");
+						if (description.lang == "en")
+						{
+							$('#cveDetails').append(`
+								<h3>Description:</h3>
+								<p>${description.value}</p>
+							`);
+						} 
+					})
+
+					var v2_metric = response.metrics.cvssMetricV2[0];
+					if (v2_metric)
+					{
+						$('#cveDetails').append(`
+							<h3>CVSS V2 Metrics:</h3>
+							<p>
+								<span style='font-weight: bold;'>Severity:</span> ${v2_metric.baseSeverity} &nbsp;&nbsp;&nbsp;
+								<span style='font-weight: bold;'>Score:</span> <span style='font-weight: bold; color: red;'> ${v2_metric.cvssData.baseScore} </span>
+							</p>
+							<p><span style='font-weight: bold;'>Vector String:</span> ${v2_metric.cvssData.vectorString}</p>
+
+							<table>
+								<thead>
+									<tr>
+										<th>Access Vector</th>
+										<th>Access Complexity</th>
+										<th>Authentication</th>
+										<th>Confidentiality Impact</th>
+										<th>Integrity Impact</th>
+										<th>Availability Impact</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td> ${v2_metric.cvssData.accessVector} </td>
+										<td> ${v2_metric.cvssData.accessComplexity} </td>
+										<td> ${v2_metric.cvssData.authentication} </td>
+										<td> ${v2_metric.cvssData.confidentialityImpact} </td>
+										<td> ${v2_metric.cvssData.integrityImpact} </td>
+										<td> ${v2_metric.cvssData.availabilityImpact} </td>
+									</tr>
+								</tbody>
+							</table>
+						`);
+					}
+
+					if (v2_metric)
+					{
+						$('#cveDetails').append(`
+							<h3>Scores:</h3>
+							<p><span style='font-weight: bold;'>Exploitability Score:</span> ${v2_metric.exploitabilityScore} </p>
+							<p><span style='font-weight: bold;'>Impact Score:</span> ${v2_metric.impactScore} </p>
+						`)
+					}
+
+					var v3_metric_list = response.metrics.cvssMetricV31;
+					if (v3_metric_list && v3_metric_list[0])
+					{
+						var v3_metric = v3_metric_list[0]; 
+
+						$('#cveDetails').append(`
+							<h3>CVSS V3 Metrics:</h3>
+							<p>
+								<span style='font-weight: bold;'>Severity:</span> ${v3_metric.baseSeverity} &nbsp;&nbsp;&nbsp;
+								<span style='font-weight: bold;'>Score:</span> <span style='font-weight: bold; color: red;'> ${v3_metric.cvssData.baseScore} </span>
+							</p>
+							<p><span style='font-weight: bold;'>Vector String:</span> ${v3_metric.cvssData.vectorString}</p>
+
+							<table>
+								<thead>
+									<tr>
+										<th>Access Vector</th>
+										<th>Access Complexity</th>
+										<th>Priviledges Required</th>
+										<th>User Interaction</th>
+										<th>Scope</th>
+										<th>Confidentiality Impact</th>
+										<th>Integrity Impact</th>
+										<th>Availability Impact</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td> ${v3_metric.cvssData.attackVector} </td>
+										<td> ${v3_metric.cvssData.attackComplexity} </td>
+										<td> ${v3_metric.cvssData.priviledgesRequired} </td>
+										<td> ${v3_metric.cvssData.userInteraction} </td>
+										<td> ${v3_metric.cvssData.scope} </td>
+										<td> ${v3_metric.cvssData.confidentialityImpact} </td>
+										<td> ${v3_metric.cvssData.integrityImpact} </td>
+										<td> ${v3_metric.cvssData.availabilityImpact} </td>
+									</tr>
+								</tbody>
+							</table>
+						`);
+
+						$('#cveDetails').append(`
+							<h3>Scores:</h3>
+							<p><span style='font-weight: bold;'>Exploitability Score:</span> ${v3_metric.exploitabilityScore} </p>
+							<p><span style='font-weight: bold;'>Impact Score:</span> ${v3_metric.impactScore} </p>
+						`)
+					}
+
+					var cpe_list = response.configurations[0].nodes[0].cpeMatch;
+					if (cpe_list && cpe_list.length > 0)
+					{
+						$('#cveDetails').append(`
+							<h3>CPE:</h3>
+						`)
+
+						cpe_table = `
+							<table>
+								<thead>
+									<tr>
+										<th>Criteria</th>
+										<th>Match Criteria ID</th>
+										<th>Vulnerable</th>
+									</tr>
+								</thead>
+								<tbody>
+						`
+
+						cpe_list.forEach(function(cpe_match) {
+							cpe_table += `
+								<tr>
+									<td> ${cpe_match.criteria} </td>
+									<td> ${cpe_match.matchCriteriaId} </td>
+									<td> ${cpe_match.vulnerable} </td>
+								</tr>
+							`
+						})
+
+						cpe_table += `
+								</tbody>
+							</table>
+						`
+
+						$('#cveDetails').append(`
+							${cpe_table}
+						`);
+					}
+					
+				}
+				else
+				{
+					$('#cveDetails').html("<p>Error: Unable to fetch CVE details.</p>");
+				}
+            });
+        });
+    </script>
+</body>
+</html>

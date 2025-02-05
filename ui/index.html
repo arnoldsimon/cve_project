@@ -16,6 +16,9 @@
         #resultsPerPage {
             margin-top: 10px;
         }
+        .display {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -40,7 +43,6 @@
             </tbody>
         </table>
 
-		<!--
         <div id="resultsPerPage">
             <label for="pageSize">Results Per Page:</label>
             <select id="pageSize">
@@ -49,7 +51,6 @@
                 <option value="100">100</option>
             </select>
         </div>
-		-->
     </div>
 
     <script>
@@ -58,12 +59,29 @@
                 serverSide: true,
                 processing: true,
                 ajax: function(data, callback, settings) {
-                    var start = settings._iDisplayStart;
-                    var length = settings._iDisplayLength;
+                    //var start = settings._iDisplayStart;
+                    //var length = settings._iDisplayLength;
+                    var draw = data.draw;
+                    var start = data.start;
+                    var length = data.length;
+
+                    var order_dir = '';
+                    var column_name = '';
+
+                    if (data.order && data.order.length > 0)
+                    {
+                        var order_indx = data.order[0].column;
+                        var order_dir = data.order[0].dir;
+                        var column_name = data.columns[order_indx].data;
+                    }
+
                     
                     $.get('http://127.0.0.1:8000/cves/list', {
                         start_indx: start,
                         length: length,
+                        sort_column: column_name,
+                        sort_order: order_dir,
+                        draw: draw,
                     }, function(response) {
 
 						$("#totalCount").text(response.recordsTotal);
@@ -85,17 +103,31 @@
                 ],
                 pageLength: 10,
 				searching: false,
-				ordering: false,
+				ordering: true,
 				lengthChange: false,
+
+                order: [[3, "asc"]],
+
+                columnDefs: [
+                    {
+                        targets: [0, 1, 4],
+                        orderable: false
+                    },
+                ]
             });
 
-			/*
+            $('#cveTable tbody').on('click', 'tr', function() {
+                var rowData = table.row(this).data();
+                var cveId = rowData.id; 
+
+                window.location.href = "cve_details.html?cve_id=" + cveId;
+            });
+
             // Change the results per page and reload data
             $('#pageSize').on('change', function() {
                 var pageSize = parseInt($(this).val(), 10);
                 table.page.len(pageSize).draw();
             });
-			*/
         });
     </script>
 </body>

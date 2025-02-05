@@ -11,7 +11,7 @@ collection = client[db_name][col_name]
 
 #TODO: log errors
 
-async def get_cve_list(start_indx: int, length: int, sort_column: str, sort_order: str):
+async def get_cve_list(start_indx: int, length: int, sort_column: str, sort_order: str, draw: int):
 	try:
 		is_asc = 1 if sort_order == "asc" else -1
 
@@ -23,7 +23,7 @@ async def get_cve_list(start_indx: int, length: int, sort_column: str, sort_orde
 			cve["_id"] = str(cve["_id"])
 		
 		res = {
-			"draw" : 1 if start_indx == 0 else (start_indx / 10) + 1,
+			"draw" : draw,
 			"recordsTotal" : total_docs,
 			"recordsFiltered" : total_docs,
 			"data" : cve_list

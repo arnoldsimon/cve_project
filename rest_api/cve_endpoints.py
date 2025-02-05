@@ -18,9 +18,15 @@ app.add_middleware(
 @app.get("/cves/list")
 async def get_cve_list(start_indx: int = Query(0, ge = 0), length: int = Query(10, ge = 1, le = 100),
 					   sort_column: str = Query("lastModified", enum = ["published", "lastModified"]), 
-					   sort_order: str = Query("desc", enum = ["asc", "desc"])):
+					   sort_order: str = Query("desc", enum = ["asc", "desc"]),
+					   draw: int = Query(..., ge = 1)):
 	try:
-		res = await db.get_cve_list(start_indx, length, sort_column, sort_order)
+		if sort_column == "":
+			sort_column = "lastModified"
+		if sort_order == "":
+			sort_order = "desc"
+
+		res = await db.get_cve_list(start_indx, length, sort_column, sort_order, draw)
 		return res
 
 	except Exception as e:
