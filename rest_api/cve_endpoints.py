@@ -19,14 +19,18 @@ app.add_middleware(
 async def get_cve_list(start_indx: int = Query(0, ge = 0), length: int = Query(10, ge = 1, le = 100),
 					   sort_column: str = Query("lastModified", enum = ["published", "lastModified"]), 
 					   sort_order: str = Query("desc", enum = ["asc", "desc"]),
-					   draw: int = Query(..., ge = 1)):
+					   draw: int = Query(..., ge = 1),
+					   cve_id: str | None = None,
+					   cve_score: float | None = None,
+					   last_mod: int | None = None
+					   ):
 	try:
 		if sort_column == "":
 			sort_column = "lastModified"
 		if sort_order == "":
 			sort_order = "desc"
 
-		res = await db.get_cve_list(start_indx, length, sort_column, sort_order, draw)
+		res = await db.get_cve_list(start_indx, length, sort_column, sort_order, draw, cve_id, cve_score, last_mod)
 		return res
 
 	except Exception as e:
@@ -55,7 +59,7 @@ async def get_cve_by_year(pub_year: int = Query(..., ge = 1900, le = datetime.no
 		raise HTTPException(status_code = 500, detail = "Internal Server Error.")
 
 @app.get("/cves/by_score")
-async def get_cve_by_year(score: float = Query(..., ge = 0.1, le = 10.0)):
+async def get_cve_by_score(score: float = Query(..., ge = 0.1, le = 10.0)):
 	try:
 		res = await db.get_cve_by_score(score)
 		return res
