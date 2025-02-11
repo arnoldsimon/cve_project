@@ -82,7 +82,7 @@ uvicorn main:app --reload
 
 **Example Request:**
 ```sh
-curl -X GET "http://localhost:8000/cves/list?start_indx=0&length=10&sort_column=lastModified&sort_order=desc"
+curl -X GET "http://localhost:8000/cves/list?start_indx=0&length=10&sort_column=lastModified&sort_order=desc&draw=1"
 ```
 
 ![Get CVE List Output](images/cve_list_output.jpg)
@@ -145,3 +145,6 @@ curl -X GET "http://localhost:8000/cves/by_mod_duration?days=30"
 
 ### Output (CVE List in UI)
 ![CVE List](images/cve_list_ui.jpg)
+
+### Output (Filtered CVE List in UI)
+![CVE List Filtered](images/filtered_output.jpg)
